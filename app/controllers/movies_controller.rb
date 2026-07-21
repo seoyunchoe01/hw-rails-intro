@@ -13,6 +13,8 @@ class MoviesController < ApplicationController
       @movies = Movie.all
     end
 
+    @sort_by = params[:sort_by]
+    @movies = @movies.order(@sort_by) if @sort_by.present?
   end
 
   # GET /movies/1 or /movies/1.json
