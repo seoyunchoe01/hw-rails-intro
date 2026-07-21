@@ -7,15 +7,23 @@ class MoviesController < ApplicationController
 
     if params[:ratings].present?
       @ratings_to_show = params[:ratings].keys
-      @movies = Movie.with_ratings(@ratings_to_show)
+      session[:ratings] = @ratings_to_show
+    elsif params[:sort_by].present? || params.key?(:commit)
+      # form was submitted but no ratings checked -> means "show all"
+      @ratings_to_show = @all_ratings
+      session[:ratings] = @ratings_to_show
+    elsif session[:ratings].present?
+      @ratings_to_show = session[:ratings]
     else
       @ratings_to_show = @all_ratings
-      @movies = Movie.all
     end
 
-    @sort_by = params[:sort_by]
-    @movies = @movies.order(@sort_by) if @sort_by.present?
-  end
+  @sort_by = params[:sort_by].presence || session[:sort_by]
+  session[:sort_by] = @sort_by if params[:sort_by].present?
+
+  @movies = Movie.with_ratings(@ratings_to_show)
+  @movies = @movies.order(@sort_by) if @sort_by.present?
+end
 
   # GET /movies/1 or /movies/1.json
   def show
